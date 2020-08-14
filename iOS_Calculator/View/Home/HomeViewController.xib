@@ -10,6 +10,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="HomeViewController" customModule="Calculadora_iOS" customModuleProvider="target">
             <connections>
                 <outlet property="number0" destination="y6r-yv-O0f" id="SuK-Ql-deD"/>
+                <outlet property="number1" destination="gUM-3k-hkz" id="IHd-b1-vqq"/>
                 <outlet property="number2" destination="vpB-Pq-qeZ" id="z0x-xc-sod"/>
                 <outlet property="number3" destination="hOh-zH-HxM" id="8UT-G6-ATh"/>
                 <outlet property="number4" destination="uTY-Jt-7oH" id="Jqa-ek-v59"/>
@@ -19,9 +20,9 @@
                 <outlet property="number8" destination="UqF-M2-rpZ" id="R6G-Ax-NTu"/>
                 <outlet property="number9" destination="uVe-Gl-ecc" id="Oev-wk-t6R"/>
                 <outlet property="operatorAC" destination="Juo-P3-eJ9" id="qjg-be-caq"/>
-                <outlet property="operatorAddition" destination="5s0-W0-DGp" id="KqU-hL-pfh"/>
+                <outlet property="operatorAddition" destination="NFW-nO-T7Q" id="iyQ-Pi-tTX"/>
                 <outlet property="operatorDecimal" destination="fs7-W9-gfh" id="tau-eD-E7R"/>
-                <outlet property="operatorDivision" destination="v4q-vL-qts" id="8Ai-sN-3h5"/>
+                <outlet property="operatorDivision" destination="5s0-W0-DGp" id="HGW-a1-0Vg"/>
                 <outlet property="operatorMultiplication" destination="ycw-8I-jhj" id="a7v-pb-xo7"/>
                 <outlet property="operatorPercent" destination="v4q-vL-qts" id="9z4-Du-Oup"/>
                 <outlet property="operatorPlusMinus" destination="fF7-Hu-wmP" id="4YD-ku-ihy"/>
