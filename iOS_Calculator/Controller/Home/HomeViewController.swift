@@ -41,6 +41,56 @@ final class HomeViewController: UIViewController {
     @IBOutlet weak var operatorResult: UIButton!
     @IBOutlet weak var operatorDecimal: UIButton!
     
+    // MARK: - Variables
+    
+    private var total:Double = 0                    // Total de nuestro calculo
+    private var temp:Double = 0                     // Datos temporales que mostraremos en el visor
+    private var operating:Bool = false              // Si estamos operando o no
+    private var decimal:Bool = false                // Si tenemos números decimales
+    private var operation:OperationType = .none     // Definir los calculos posibles
+    
+    // MARK: - Constantes
+    
+    private let kDecimalSeparator = Locale.current.decimalSeparator!
+    
+    private let kMaximumLength = 9
+    private let kMaximumValue = 999999999
+    private let kMinimumValue = 0.00000001
+    
+    
+    
+    private enum OperationType {
+        case none, adicction, substraction, division, multiplication, percent
+    }
+    
+    //MARK: - Formateadores
+    
+    // Formateador de valores auxiliares
+   
+    private var auxFormatter: NumberFormatter {
+        let formatter = NumberFormatter()
+        let locale = Locale.current
+        formatter.groupingSeparator = ""
+        formatter.decimalSeparator = locale.decimalSeparator
+        formatter.numberStyle = .decimal
+        return formatter
+    }
+    
+    
+    // Formateador de valores por pantalla por defecto
+    
+    private var printFormatter: NumberFormatter {
+        let formatter = NumberFormatter()
+        let locale = Locale.current
+        formatter.groupingSeparator = locale.groupingSeparator
+        formatter.decimalSeparator = locale.decimalSeparator
+        formatter.maximumIntegerDigits = 9
+        formatter.maximumFractionDigits = 8
+        formatter.minimumFractionDigits = 0
+        
+        return formatter
+    }
+    
     // MARK: - Inicialización
     
     init() {
@@ -79,57 +129,182 @@ final class HomeViewController: UIViewController {
         operatorSubstraction.round()
         operatorMultiplication.round()
         
+        operatorDecimal.setTitle(kDecimalSeparator, for: .normal)
+        result()
+        
     }
     
     // MARK: - Acciones de los botones
     
     @IBAction func operatorACAction(_ sender: UIButton) {
-        // Efecto Brillo
         
-        sender.shine()
-    }
-    @IBAction func operatorPlusMinusAction(_ sender: UIButton) {
-        // Efecto Brillo
-        
-        sender.shine()
-    }
-    @IBAction func operatorPercentAction(_ sender: UIButton) {
-        // Efecto Brillo
-        
-        sender.shine()
-    }
-    @IBAction func operatorDivisionAction(_ sender: UIButton) {
-        // Efecto Brillo
-        
-        sender.shine()
-    }
-    @IBAction func operatorAdditionAction(_ sender: UIButton) {
-        // Efecto Brillo
-        
-        sender.shine()
-    }
-    @IBAction func operatorSubstractionAction(_ sender: UIButton) {
-        // Efecto Brillo
-        
-        sender.shine()
-    }
-    @IBAction func operatorMultiplicationAction(_ sender: UIButton) {
-        // Efecto Brillo
-        
-        sender.shine()
-    }
-    @IBAction func operatorDecimalAction(_ sender: UIButton) {
-        // Efecto Brillo
-        
-        sender.shine()
-    }
-    @IBAction func numberAction(_ sender: UIButton) {
-        
-        // Efecto Brillo
+        clean()
         
         sender.shine()
     }
     
+    @IBAction func equalAction(_ sender: UIButton) {
+        
+        result()
+        sender.shine()
+    }
+    
+    @IBAction func operatorPlusMinusAction(_ sender: UIButton) {
+        
+        temp = temp * (-1)
+        resultsLabel.text = printFormatter.string(from: NSNumber(value: temp))
+        
+        sender.shine()
+    }
+    
+    
+    @IBAction func operatorPercentAction(_ sender: UIButton) {
+        
+        if operation != .percent {
+            result()
+        }
+        
+        operating = true
+        operation = .percent
+        result()
+        
+        sender.shine()
+    }
+    
+    @IBAction func operatorDivisionAction(_ sender: UIButton) {
+        
+        result()
+        operating = true
+        operation = .division
+        
+        sender.shine()
+    }
+    
+    @IBAction func operatorAdditionAction(_ sender: UIButton) {
+        
+        result()
+        operating = true
+        operation = .adicction
+                
+        sender.shine()
+    }
+    
+    @IBAction func operatorSubstractionAction(_ sender: UIButton) {
+        
+        result()
+        operating = true
+        operation = .substraction
+        
+        sender.shine()
+    }
+    
+    @IBAction func operatorMultiplicationAction(_ sender: UIButton) {
+        
+        result()
+        operating = true
+        operation = .multiplication
+        
+        sender.shine()
+    }
+    
+    @IBAction func operatorDecimalAction(_ sender: UIButton) {
+        
+        let currentTemp = auxFormatter.string(from: NSNumber(value: temp))!
+        
+        if !operating && currentTemp.count > kMaximumLength {
+            return
+        }
+        
+        resultsLabel.text = resultsLabel.text! + kDecimalSeparator
+        decimal = true
+        
+        sender.shine()
+    }
+    
+    @IBAction func numberAction(_ sender: UIButton) {
+        
+        operatorAC.setTitle("C", for: .normal)
+        
+        var currentTemp = auxFormatter.string(from: NSNumber(value: temp))!
+        if !operating && currentTemp.count >= kMaximumLength {
+            return
+        }
+        
+        
+        // Hemos seleccionado una operación
+        
+        if operating {
+            total = total == 0 ? temp : total
+            resultsLabel.text = ""
+            currentTemp = ""
+            operating = false
+        }
+        
+        // Hemos seleccionado una operación con decimales
+        
+        if decimal {
+            currentTemp = "\(currentTemp)\(kDecimalSeparator)"
+            decimal = false
+        }
+        
+        let number = sender.tag
+        temp = Double(currentTemp + String(number))!
+        
+        // Imprimimos resultados por pantalla
+        
+        resultsLabel.text = printFormatter.string(from: NSNumber(value: temp))
+        
+        
+        sender.shine()
+    }
+    
+    // Limpiar pantalla y temporales
+    
+    private func clean(){
+        operation = .none
+        operatorAC.setTitle("AC", for: .normal)
+        
+        if temp != 0 {
+            temp = 0
+            resultsLabel.text = "0"
+        } else {
+            total = 0
+            return result()
+        }
+    }
+    
+    // Calcular resultados
+    
+    private func result(){
+        
+        // Comprobaremos que operación estamos realizando
+        
+        switch operation {
+            
+        case .none:
+            // No hace nada
+            break
+        case .adicction:
+            total = total + temp
+            break
+        case .substraction:
+            total = total - temp
+            break
+        case .division:
+            total = total / temp
+        case .multiplication:
+            total = total * temp
+        case .percent:
+            temp = temp / 100
+            total = temp
+        }
+        
+        // Formateo de resultados
+        
+        if total <= Double(kMaximumValue) || total >= Double(kMinimumValue) {
+            resultsLabel.text = printFormatter.string(from: NSNumber(value: total))
+        }
+    }
     
     
     
