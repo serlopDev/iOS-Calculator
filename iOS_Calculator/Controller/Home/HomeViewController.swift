@@ -54,10 +54,6 @@ final class HomeViewController: UIViewController {
     private let kDecimalSeparator = Locale.current.decimalSeparator!
     
     private let kMaximumLength = 9
-    private let kMaximumValue = 999999999
-    private let kMinimumValue = 0.00000001
-    
-    
     
     private enum OperationType {
         case none, adicction, substraction, division, multiplication, percent
@@ -67,19 +63,19 @@ final class HomeViewController: UIViewController {
     
     // Formateador de valores auxiliares
    
-    private var auxFormatter: NumberFormatter {
+    private let auxFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         let locale = Locale.current
         formatter.groupingSeparator = ""
         formatter.decimalSeparator = locale.decimalSeparator
         formatter.numberStyle = .decimal
         return formatter
-    }
+    } ()
     
     
     // Formateador de valores por pantalla por defecto
     
-    private var printFormatter: NumberFormatter {
+    private let printFormatter: NumberFormatter = {
         let formatter = NumberFormatter()
         let locale = Locale.current
         formatter.groupingSeparator = locale.groupingSeparator
@@ -89,7 +85,33 @@ final class HomeViewController: UIViewController {
         formatter.minimumFractionDigits = 0
         
         return formatter
-    }
+    } ()
+    
+    // Formateador de valores cientificos
+    
+    private let printScientificFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .scientific
+        formatter.maximumFractionDigits = 3
+        formatter.exponentSymbol = "e"
+        
+        return formatter
+    } ()
+    
+    // Formateador auxiliar de total
+    
+    private let auxTotalFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        let locale = Locale.current
+        formatter.groupingSeparator = ""
+        formatter.decimalSeparator = ""
+        formatter.numberStyle = .decimal
+        formatter.maximumIntegerDigits = 100
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 100
+        
+        return formatter
+    }()
     
     // MARK: - Inicialización
     
@@ -173,37 +195,53 @@ final class HomeViewController: UIViewController {
     
     @IBAction func operatorDivisionAction(_ sender: UIButton) {
         
-        result()
+        if operation != .none {
+            result()
+        }
+        
         operating = true
         operation = .division
         
+        sender.selectOperation(selected: true)
         sender.shine()
     }
     
     @IBAction func operatorAdditionAction(_ sender: UIButton) {
         
-        result()
+        if operation != .none {
+            result()
+        }
+        
         operating = true
         operation = .adicction
                 
+        sender.selectOperation(selected: true)
         sender.shine()
     }
     
     @IBAction func operatorSubstractionAction(_ sender: UIButton) {
         
-        result()
+        if operation != .none {
+            result()
+        }
+        
         operating = true
         operation = .substraction
         
+        sender.selectOperation(selected: true)
         sender.shine()
     }
     
     @IBAction func operatorMultiplicationAction(_ sender: UIButton) {
         
-        result()
+        if operation != .none {
+            result()
+        }
+        
         operating = true
         operation = .multiplication
         
+        sender.selectOperation(selected: true)
         sender.shine()
     }
     
@@ -218,6 +256,7 @@ final class HomeViewController: UIViewController {
         resultsLabel.text = resultsLabel.text! + kDecimalSeparator
         decimal = true
         
+        visualSelectedOperation()
         sender.shine()
     }
     
@@ -254,7 +293,7 @@ final class HomeViewController: UIViewController {
         
         resultsLabel.text = printFormatter.string(from: NSNumber(value: temp))
         
-        
+        visualSelectedOperation()
         sender.shine()
     }
     
@@ -301,8 +340,65 @@ final class HomeViewController: UIViewController {
         
         // Formateo de resultados
         
-        if total <= Double(kMaximumValue) || total >= Double(kMinimumValue) {
+        if let currentTotal = auxTotalFormatter.string(from: NSNumber(value: total)), currentTotal.count > kMaximumLength {
+            resultsLabel.text = printScientificFormatter.string(from: NSNumber(value: total))
+        } else {
             resultsLabel.text = printFormatter.string(from: NSNumber(value: total))
+        }
+        
+        operation = .none
+        
+        visualSelectedOperation()
+    }
+    
+    // Mostrar de distinto color el botón de la operación seleccionada
+    
+    private func visualSelectedOperation (){
+        
+        if !operating {
+            // No se hará nada
+            operatorAddition.selectOperation(selected: false)
+            operatorSubstraction.selectOperation(selected: false)
+            operatorDivision.selectOperation(selected: false)
+            operatorMultiplication.selectOperation(selected: false)
+        } else {
+            switch operation {
+            case .none, .percent:
+                // No hará nada
+                operatorAddition.selectOperation(selected: false)
+                operatorSubstraction.selectOperation(selected: false)
+                operatorDivision.selectOperation(selected: false)
+                operatorMultiplication.selectOperation(selected: false)
+                break
+            case .adicction:
+                // Invertimos los colores
+                operatorAddition.selectOperation(selected: true)
+                operatorSubstraction.selectOperation(selected: false)
+                operatorDivision.selectOperation(selected: false)
+                operatorMultiplication.selectOperation(selected: false)
+                break
+            case .substraction:
+                // Invertimos los colores
+                operatorAddition.selectOperation(selected: false)
+                operatorSubstraction.selectOperation(selected: true)
+                operatorDivision.selectOperation(selected: false)
+                operatorMultiplication.selectOperation(selected: false)
+                break
+            case .division:
+                // Invertimos los colores
+                operatorAddition.selectOperation(selected: false)
+                operatorSubstraction.selectOperation(selected: false)
+                operatorDivision.selectOperation(selected: true)
+                operatorMultiplication.selectOperation(selected: false)
+                break
+            case .multiplication:
+                // Invertimos los colores
+                operatorAddition.selectOperation(selected: false)
+                operatorSubstraction.selectOperation(selected: false)
+                operatorDivision.selectOperation(selected: false)
+                operatorMultiplication.selectOperation(selected: true)
+                break
+            }
         }
     }
     

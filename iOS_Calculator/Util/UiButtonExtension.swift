@@ -8,7 +8,13 @@
 
 import UIKit
 
+    private let orange = UIColor(red: 254/255, green: 148/255, blue: 0/255, alpha: 1)
+
 extension UIButton {
+    
+    // Colores
+    
+
     
     // Borde Redondo
     
@@ -28,4 +34,15 @@ extension UIButton {
                 })
             }
         }
+    
+    // Cambiar apariencia del botón si se selecciona
+    
+        func selectOperation(selected: Bool){
+        
+        // Invertimos los colores
+        
+        backgroundColor = selected ? .white : orange
+        setTitleColor(selected ? orange : .white, for: .normal)
+        
+    }
 }
